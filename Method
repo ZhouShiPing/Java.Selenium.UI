@@ -1,0 +1,145 @@
+import java.awt.AWTException;
+import java.awt.Robot;
+import java.awt.event.KeyEvent;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
+import org.apache.commons.io.FileUtils;
+import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.OutputType;
+import org.openqa.selenium.TakesScreenshot;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+
+public class Method {
+    public static WebDriver driver;
+
+    // 打开浏览器
+    @BeforeMethod
+    public void open() {
+        // 设置驱动路径
+        System.setProperty("webdriver.chrome.driver",
+                "src/test/resources/chromedriver.exe");
+        // 设置浏览器参数
+        ChromeOptions option = new ChromeOptions();
+        // 窗口最大化
+        option.addArguments("--type-test", "--start-maximized", "disable-infobars");
+        // 打开浏览器
+        driver = new ChromeDriver(option);
+    }
+
+    // 判断图片是否存在
+    public boolean IsImageVisible(WebDriver driver, WebElement image) {
+        Boolean imageLoaded1 = (Boolean) ((JavascriptExecutor) driver)
+                .executeScript(
+                        "return arguments[0].complete && typeof arguments[0].naturalWidth != \"undefined\" && arguments[0].naturalWidth > 0",
+                        image);
+        if (!imageLoaded1) {
+            return false;
+        }
+        return true;
+    }
+
+    // 判断元素是否存在
+    public boolean isElementPresent(By by) {
+        try {
+            driver.findElement(by);
+            System.out.println("==>>出现遮罩水印<<==");
+            return true;
+        } catch (Exception e) {
+            System.out.println("==>>未出现遮罩水印<<==");
+            return false;
+        }
+    }
+
+    // 打开网址
+    public void openURl(String url) {
+        driver.get(url);
+    }
+
+    // 退出浏览器
+    @AfterMethod
+    public void quit() {
+        driver.quit();
+    }
+
+    // 关闭浏览器
+    public void close() {
+        driver.close();
+    }
+
+    // 下拉窗口
+    public void scrollTo(String scrollTo) {
+        JavascriptExecutor js = ((JavascriptExecutor) driver);
+        js.executeScript(scrollTo);
+    }
+
+    // 切换窗口
+    public void window(int num) {
+        Set<String> window = driver.getWindowHandles();
+        List<String> windowHandles = new ArrayList<String>(window);
+        driver.switchTo().window(windowHandles.get(num));
+    }
+
+    // 点击元素
+    public void xpath(String xpath) {
+        driver.findElement(By.xpath(xpath)).click();
+    }
+
+    // 休息
+    public void sleep(int millis) {
+        try {
+            Thread.sleep(millis);
+        } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
+
+    // 截屏
+    public void screenShot(String screen) {
+        File srcFile = ((TakesScreenshot) driver)
+                .getScreenshotAs(OutputType.FILE);
+        try {
+            FileUtils.copyFile(srcFile, new File(screen));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // 后退
+    public void back() {
+        driver.navigate().back();
+    }
+
+    // 前进
+    public void forward() {
+        driver.navigate().forward();
+    }
+
+    // 刷新
+    public void refresh() {
+        driver.navigate().refresh();
+    }
+
+    // 键盘按住单个esc键
+    public void esc() {
+        try {
+            Robot robot = new Robot();
+            robot.keyPress(KeyEvent.VK_ESCAPE);
+            robot.keyRelease(KeyEvent.VK_ESCAPE);
+        } catch (AWTException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
+
+}
